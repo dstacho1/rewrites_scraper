@@ -11,8 +11,7 @@ TO DO:
     - hosting the script on desktop, heroku, or a raspberry pi?
     - search seperately for beginner and intermediate level essays
 
-    - did this appear
-    - is this the new branch?
+    - i didnt need the other 2 todos
 """
 
 
