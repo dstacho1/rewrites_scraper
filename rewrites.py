@@ -10,6 +10,8 @@ TO DO:
     - scheduling the scrip using cronjobs
     - hosting the script on desktop, heroku, or a raspberry pi?
     - search seperately for beginner and intermediate level essays
+
+    - did this appear
 """
 
 
