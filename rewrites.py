@@ -11,7 +11,7 @@ TO DO:
     - hosting the script on desktop, heroku, or a raspberry pi?
     - search seperately for beginner and intermediate level essays
 
-    - i didnt need the other 2 todos
+
 """
 
 
