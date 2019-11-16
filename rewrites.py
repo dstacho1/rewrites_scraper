@@ -8,10 +8,6 @@ from selenium import webdriver
 TO DO:
     - look into storing pw safely
     - scheduling the scrip using cronjobs
-    - hosting the script on desktop, heroku, or a raspberry pi?
-    - search seperately for beginner and intermediate level essays
-    - got rid of that giberish
-
 """
 
 
@@ -42,8 +38,20 @@ def rewrites_scrape(html):
     # scrapes the html and returns the amount of post items currently on the site.
     soup = BeautifulSoup(html, "lxml")
 
-    post_items_list = soup.find_all("div", class_="postItem")  # learn to check for only beginner tag posts
-    return len(post_items_list)
+    post_items_list = soup.find_all("div", class_="postItem")
+    post_items_len = len(post_items_list)
+
+    # scrapes for the exact number of beginner and intermediate posts currently on the site
+    intermediate_count, beginner_count = 0, 0
+    for div in post_items_list:
+        if div.find("a", "label").text == "intermediate":
+            intermediate_count += 1
+        elif div.find("a", "label").text == "beginner":
+            beginner_count += 1
+
+    data_for_make_email = [post_items_len, intermediate_count, beginner_count]
+
+    return data_for_make_email
 
 
 def send_email(subject, msg):
@@ -61,13 +69,13 @@ def send_email(subject, msg):
         print("Email failed to send.")
 
 
-def make_email(post_items_currently):
+def make_email(data_for_make_email):
+
     # only send the email if there are 2 or more essays to grade
-    if post_items_currently > 2:
-        subject = "{} essays to check".format(post_items_currently)
-        msg = "There are currently {} essays on https://www.rewrites.me/".format(post_items_currently)
+    if data_for_make_email[0] > 2:
+        subject = "{} essays to check".format(data_for_make_email[0])
+        msg = "There are currently {} essays on https://www.rewrites.me\n{} are beginner essays and {} are intermediate essays".format(data_for_make_email[0], data_for_make_email[2], data_for_make_email[1])
         send_email(subject, msg)
 
 
-post_items_currently = rewrites_scrape(rewrites_login())
-make_email(post_items_currently)
+make_email(rewrites_scrape(rewrites_login()))
