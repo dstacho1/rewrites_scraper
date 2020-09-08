@@ -4,18 +4,12 @@ import config
 
 from selenium import webdriver
 
-"""
-TO DO:
-    - look into storing pw safely
-    - scheduling the scrip using cronjobs
-    - make the script accept any and all beginner level essays
-"""
 
 
 def rewrites_login():
     # open and login to rewrites.
     username = config.EMAIL_ADDRESS
-    password = config.PASSWORD_RE  # how to store pw safely, environmental variables?, keyring? bit 64?
+    password = config.PASSWORD_RE  
 
     url = "https://www.rewrites.me/users/sign_in"
 
@@ -32,7 +26,7 @@ def rewrites_login():
     # navigate to url and get the html code
     driver.get("https://www.rewrites.me/articles/waiting")    #"https://www.rewrites.me/"
     #driver.find_element_by_css_selector("a[href=topic-waiting]").click() # try to get to waiting tab
-    driver.find_element_by_xpath('//a[contains(@href,"#topic-waiting")]').click() # try to get to waiting tab = GREAT SUCCESS! 
+    driver.find_element_by_xpath('//a[contains(@href,"#topic-waiting")]').click() # try to get to waiting tab
     html = driver.page_source
 
     return html
@@ -55,7 +49,7 @@ class Scrape:
                 self.intermediate_count += 1
             elif div.find("a", "label").text == "beginner":
                 self.beginner_count += 1
-            elif div.find("a", "label").text == "advanced":  # double check this html!!!!!
+            elif div.find("a", "label").text == "advanced":  
                 self.advanced_count += 1
 
 
