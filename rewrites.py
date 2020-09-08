@@ -8,6 +8,7 @@ from selenium import webdriver
 TO DO:
     - look into storing pw safely
     - scheduling the scrip using cronjobs
+    - make the script accept any and all beginner level essays
 """
 
 
@@ -18,7 +19,8 @@ def rewrites_login():
 
     url = "https://www.rewrites.me/users/sign_in"
 
-    driver = webdriver.Chrome("/Users/damian/Downloads/chromedriver")
+    driver = webdriver.Chrome('C:\\webdrivers\\chromedriver.exe')
+    
 
     driver.get(url)
 
@@ -28,30 +30,33 @@ def rewrites_login():
     driver.find_element_by_name("commit").click()
 
     # navigate to url and get the html code
-    driver.get("https://www.rewrites.me/")
+    driver.get("https://www.rewrites.me/articles/waiting")    #"https://www.rewrites.me/"
+    #driver.find_element_by_css_selector("a[href=topic-waiting]").click() # try to get to waiting tab
+    driver.find_element_by_xpath('//a[contains(@href,"#topic-waiting")]').click() # try to get to waiting tab = GREAT SUCCESS! 
     html = driver.page_source
 
     return html
 
 
-def rewrites_scrape(html):
-    # scrapes the html and returns the amount of post items currently on the site.
-    soup = BeautifulSoup(html, "lxml")
+class Scrape:
 
-    post_items_list = soup.find_all("div", class_="postItem")
-    post_items_len = len(post_items_list)
+    def __init__(self, html):
 
-    # scrapes for the exact number of beginner and intermediate posts currently on the site
-    intermediate_count, beginner_count = 0, 0
-    for div in post_items_list:
-        if div.find("a", "label").text == "intermediate":
-            intermediate_count += 1
-        elif div.find("a", "label").text == "beginner":
-            beginner_count += 1
+        # scrapes the html and returns the amount of post items currently on the site.
+        self.soup = BeautifulSoup(html, "lxml")
 
-    data_for_make_email = [post_items_len, intermediate_count, beginner_count]
+        self.post_items_list = self.soup.find_all("div", class_="postItem")
+        self.post_items_len = len(self.post_items_list)
 
-    return data_for_make_email
+        # scrapes for the exact number of beginner and intermediate posts currently on the site
+        self.intermediate_count, self.beginner_count, self.advanced_count = 0, 0, 0
+        for div in self.post_items_list:
+            if div.find("a", "label").text == "intermediate":
+                self.intermediate_count += 1
+            elif div.find("a", "label").text == "beginner":
+                self.beginner_count += 1
+            elif div.find("a", "label").text == "advanced":  # double check this html!!!!!
+                self.advanced_count += 1
 
 
 def send_email(subject, msg):
@@ -69,13 +74,18 @@ def send_email(subject, msg):
         print("Email failed to send.")
 
 
-def make_email(data_for_make_email):
+def email_data():
+    return Scrape(rewrites_login())
 
-    # only send the email if there are 2 or more essays to grade
-    if data_for_make_email[0] > 2:
-        subject = "{} essays to check".format(data_for_make_email[0])
-        msg = "There are currently {} essays on https://www.rewrites.me\n{} are beginner essays and {} are intermediate essays".format(data_for_make_email[0], data_for_make_email[2], data_for_make_email[1])
+
+def make_email():
+    data = email_data()
+
+    # only send the email if there is 1 or more essays to grade
+    if data.post_items_len < 1:
+        subject = "{} essays to check".format(data.post_items_len)
+        msg = "There are currently {} essays on https://www.rewrites.me\n{} are beginner essays, {} are intermediate essays, and {} are advanced essays".format(data.post_items_len, data.beginner_count, data.intermediate_count, data.advanced_count)
         send_email(subject, msg)
 
 
-make_email(rewrites_scrape(rewrites_login()))
+make_email()
